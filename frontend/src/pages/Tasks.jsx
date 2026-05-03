@@ -68,6 +68,19 @@ const Tasks = () => {
     }
   };
 
+  const handleDeleteTask = async (id) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await api.delete(`/tasks/${id}`);
+        setTasks(tasks.filter(t => t._id !== id));
+        alert('Task deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete task', error);
+        alert('Could not delete task');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -145,7 +158,7 @@ const Tasks = () => {
                       {task.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex space-x-2 items-center">
                     <select 
                       className="border rounded text-xs p-1"
                       value={task.status}
@@ -155,6 +168,14 @@ const Tasks = () => {
                       <option value="In Progress">In Progress</option>
                       <option value="Done">Done</option>
                     </select>
+                    {user?.role === 'Admin' && (
+                      <button 
+                        onClick={() => handleDeleteTask(task._id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors text-xs font-medium"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

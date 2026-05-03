@@ -1,4 +1,5 @@
 const Project = require('../models/Project');
+const Task = require('../models/Task');
 
 const createProject = async (req, res) => {
   const { name, description, members } = req.body;
@@ -42,4 +43,23 @@ const getProjectById = async (req, res) => {
   }
 };
 
-module.exports = { createProject, getProjects, getProjectById };
+const deleteProject = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Cascade delete associated tasks
+    await Task.deleteMany({ project: req.params.id });
+    
+    // Delete the project
+    await project.deleteOne();
+    
+    res.json({ message: 'Project and associated tasks removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { createProject, getProjects, getProjectById, deleteProject };

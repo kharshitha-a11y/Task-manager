@@ -31,6 +31,19 @@ const Projects = () => {
     }
   };
 
+  const handleDeleteProject = async (id) => {
+    if (window.confirm('Are you sure you want to delete this project? All associated tasks will also be deleted.')) {
+      try {
+        await api.delete(`/projects/${id}`);
+        setProjects(projects.filter(p => p._id !== id));
+        alert('Project deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete project', error);
+        alert('Could not delete project');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -59,7 +72,17 @@ const Projects = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map(project => (
             <div key={project._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-xl mb-2 text-gray-800">{project.name}</h3>
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-xl text-gray-800">{project.name}</h3>
+                {user?.role === 'Admin' && (
+                  <button 
+                    onClick={() => handleDeleteProject(project._id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
               <p className="text-gray-600 mb-4">{project.description}</p>
               <div className="text-sm text-gray-500">
                 Created By: {project.createdBy?.name || 'Unknown'}
